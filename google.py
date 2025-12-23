@@ -1,22 +1,19 @@
 import asyncio
+import time
 
 
-async def long_task():
-    await asyncio.sleep(3)
-    return 'Long Task Complete'
-
-
-async def another_long_task():
-    await asyncio.sleep(1)
-    return 'Another Long Task Complete'
+async def some_corouting(delay, text):
+    for i in range(3):
+        await asyncio.sleep(delay)
+        print(f'Task with delay {delay}: {text} ({i})')
 
 
 async def main():
-    t1 = asyncio.create_task(long_task())
-    t2 = asyncio.create_task(another_long_task())
+    t1 = asyncio.create_task(some_corouting(3, 'hello'))
+    t2 = asyncio.create_task(some_corouting(1, 'world'))
 
-    async for completed_task in asyncio.as_completed([t1, t2]):
-        print(completed_task.result())
+    await t1
+    await t2
 
 
 if __name__ == '__main__':
