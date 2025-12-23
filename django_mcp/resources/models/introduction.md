@@ -115,11 +115,8 @@ YEAR_IN_SCHOOL_CHOICES = [
 ```
 
 > [!NOTE]
-
 > A new migration is created each time the order of `choices` changes.
-
 > The first element in each tuple is the value that will be stored in the database. The second element is displayed by the field’s form widget.
-
 > Given a model instance, the display value for a field with `choices` can be accessed using the [`get_FOO_display()`](https://docs.djangoproject.com/en/6.0/ref/models/instances/#django.db.models.Model.get_FOO_display "django.db.models.Model.get_FOO_display") method. For example:
 
 ```python
@@ -546,6 +543,8 @@ Django places some restrictions on model field names:
 
 > [!IMPORTANT]
 > A field name cannot end with an underscore, for similar reasons.
+
+> [!IMPORTANT]
 > A field name cannot be `check`, as this would override the check framework’s `Model.check()` method.
 
 These limitations can be worked around, though, because your field name doesn’t necessarily have to match your database column name. See the [`db_column`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.db_column "django.db.models.Field.db_column") option.
@@ -560,14 +559,14 @@ If one of the existing model fields cannot be used to fit your purposes, or if y
 
 Give your model metadata by using an inner `class Meta`, like so:
 
-```
-fromdjango.dbimport models
+```python
+from django.db import models
 
 
-classOx(models.Model):
+class Ox(models.Model):
     horn_length = models.IntegerField()
 
-    classMeta:
+    class Meta:
         ordering = ["horn_length"]
         verbose_name_plural = "oxen"
 ```
@@ -588,18 +587,18 @@ This is a valuable technique for keeping business logic in one place – the mod
 
 For example, this model has a few custom methods:
 
-```
-fromdjango.dbimport models
+```python
+from django.db import models
 
 
-classPerson(models.Model):
+class Person(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     birth_date = models.DateField()
 
-    defbaby_boomer_status(self):
+    def baby_boomer_status(self):
         "Returns the person's baby-boomer status."
-        importdatetime
+        import datetime
 
         if self.birth_date < datetime.date(1945, 8, 1):
             return "Pre-boomer"
@@ -609,9 +608,9 @@ classPerson(models.Model):
             return "Post-boomer"
 
     @property
-    deffull_name(self):
+    def full_name(self):
         "Returns the person's full name."
-        return f"{self.first_name}{self.last_name}"
+        return f"{self.first_name} {self.last_name}"
 ```
 
 The last method in this example is a [property](https://docs.djangoproject.com/en/6.0/glossary/#term-property).
@@ -1092,17 +1091,11 @@ In normal Python class inheritance, it is permissible for a child class to overr
 This restriction doesn’t apply to model fields inherited from an abstract model. Such fields may be overridden with another field or value, or be removed by setting `field_name = None`.
 
 > [!NOTE]
-
 > Some fields define extra attributes on the model, e.g. a [`ForeignKey`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.ForeignKey "django.db.models.ForeignKey") defines an extra attribute with `_id` appended to the field name, as well as `related_name` and `related_query_name` on the foreign model.
-
 > These extra attributes cannot be overridden unless the field that defines it is changed or removed so that it no longer defines the extra attribute.
-
 > Overriding fields in a parent model leads to difficulties in areas such as initializing new instances (specifying which field is being initialized in `Model.__init__`) and serialization. These are features which normal Python class inheritance doesn’t have to deal with in quite the same way, so the difference between Django model inheritance and Python class inheritance isn’t arbitrary.
-
 > This restriction only applies to attributes which are [`Field`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field "django.db.models.Field") instances. Normal Python attributes can be overridden if you wish. It also only applies to the name of the attribute as Python sees it: if you are manually specifying the database column name, you can have the same column name appearing in both a child and an ancestor model for multi-table inheritance (they are columns in two different database tables).
-
 > Django will raise a [`FieldError`](https://docs.djangoproject.com/en/6.0/ref/exceptions/#django.core.exceptions.FieldError "django.core.exceptions.FieldError") if you override any model field in any ancestor model.
-
 > Note that because of the way fields are resolved during class definition, model fields inherited from multiple abstract parent models are resolved in a strict depth-first order. This contrasts with standard Python MRO, which is resolved breadth-first in cases of diamond shaped inheritance. This difference only affects complex model hierarchies, which (as per the advice above) you should try to avoid.
 
 ## Organizing models in a package[¶](https://docs.djangoproject.com/en/6.0/topics/db/models/#organizing-models-in-a-package "Link to this heading")
