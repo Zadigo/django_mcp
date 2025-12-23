@@ -537,13 +537,16 @@ Django places some restrictions on model field names:
 >     pass = models.IntegerField() # 'pass' is a reserved word!
 > ```
 
-2. A field name cannot contain more than one underscore in a row, due to the way Django’s query lookup syntax works. For example:
-   ```
-   classExample(models.Model):
-       foo__bar = models.IntegerField()  # 'foo__bar' has two underscores!
-   ```
-3. A field name cannot end with an underscore, for similar reasons.
-4. A field name cannot be `check`, as this would override the check framework’s `Model.check()` method.
+> [!IMPORTANT]
+> A field name cannot contain more than one underscore in a row, due to the way Django’s query lookup syntax works. For example:
+> ```python
+> class Example(models.Model):
+>     foo__bar = models.IntegerField()  # 'foo__bar' has two underscores!
+> ```
+
+> [!IMPORTANT]
+> A field name cannot end with an underscore, for similar reasons.
+> A field name cannot be `check`, as this would override the check framework’s `Model.check()` method.
 
 These limitations can be worked around, though, because your field name doesn’t necessarily have to match your database column name. See the [`db_column`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.db_column "django.db.models.Field.db_column") option.
 
