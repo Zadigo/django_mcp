@@ -408,45 +408,37 @@ If any Task or Future from the *aws* sequence is  *cancelled* , it is treated as
 > [!NOTE]
 > A new alternative to create and run tasks concurrently and wait for their completion is [`asyncio.TaskGroup`](https://docs.python.org/3/library/asyncio-task.html#asyncio.TaskGroup). *TaskGroup* provides stronger safety guarantees than *gather* for scheduling a nesting of subtasks: if a task (or a subtask, a task scheduled by a task) raises an exception, *TaskGroup* will, while *gather* will not, cancel the remaining scheduled tasks).
 
-Example:
+Using our database example:
 
 ```python
 import asyncio
 
-async def factorial(name, number):
-    f = 1
-    for i in range(2, number + 1):
-        print(f"Task {name}: Compute factorial({number}), currently i={i}...")
-        await asyncio.sleep(1)
-        f *= i
-    print(f"Task {name}: factorial({number}) = {f}")
-    return f
+
+class Database:
+    def __init__(self, name):
+        self.name = name
+        print(f'Instanciated database {self.name}...') # Will print immediately when instance is created
+
+    async def __call__(self, seconds):
+        await asyncio.sleep(seconds)
+        print(f'  - Database {self.name} initialized in {seconds} seconds.') # Will print after the database is initialized
+
+
+async def database_one():
+    instance = Database('DB1')
+    return await instance(5)
+
+
+async def database_two():
+    instance = Database('DB2')
+    return await instance(2)
+
 
 async def main():
-    # Schedule three calls *concurrently*:
-    L = await asyncio.gather(
-        factorial("A", 2),
-        factorial("B", 3),
-        factorial("C", 4),
-    )
-    print(L)
-
-asyncio.run(main())
-```
-
-Expected output:
-
-```text
-    Task A: Compute factorial(2), currently i=2...
-    Task B: Compute factorial(3), currently i=2...
-    Task C: Compute factorial(4), currently i=2...
-    Task A: factorial(2) = 2
-    Task B: Compute factorial(3), currently i=3...
-    Task C: Compute factorial(4), currently i=3...
-    Task B: factorial(3) = 6
-    Task C: Compute factorial(4), currently i=4...
-    Task C: factorial(4) = 24
-    [2, 6, 24]
+    # Gather launches both database initializations concurrently
+    # and waits for their completion
+    asyncio.gather(database_one(), database_two())
+    print('Databases initialized.') # Will print after both databases are initialized
 ```
 
 > [!IMPORTANT]
@@ -460,6 +452,21 @@ Block for *delay* seconds.
 
 If *result* is provided, it is returned to the caller when the coroutine completes.
 
+```python
+async def waiting_to_print():
+    return 'Waited and printed!'
+
+
+async def main():
+    print('Starting wait...')
+    # The coroutine will sleep for 3 seconds before proceeding and
+    # will return the result of waiting_to_print() after the sleep
+    value = await asyncio.sleep(3, result=await waiting_to_print())
+    print('Finished waiting:', value)
+```
+
+The result parameter in the sleep function can be 
+
 `sleep()` always suspends the current task, allowing other tasks to run.
 
 Setting the delay to 0 provides an optimized path to allow other tasks to run. This can be used by long-running functions to avoid blocking the event loop for the full duration of the function call.
@@ -468,7 +475,6 @@ Example of coroutine displaying the current date every second for 5 seconds:
 
 ```python
 import asyncio
-
 import datetime
 
 
@@ -487,8 +493,7 @@ async def display_date():
 asyncio.run(display_date())
 ```
 
-
-## [Eager Task Factory](https://docs.python.org/3/library/asyncio-task.html#id9) - [Reference](https://docs.python.org/3/library/asyncio-task.html#eager-task-factory)
+## Eager Task Factory - [Reference](https://docs.python.org/3/library/asyncio-task.html#eager-task-factory)
 
 asyncio.eager_task_factory( *loop* ,  *coroutine* ,  *** ,  *name=None* ,  *context=None* ) - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.eager_task_factory)
 
@@ -498,11 +503,8 @@ When using this factory (via [`loop.set_task_factory(asyncio.eager_task_factory)
 
 A common example where this is beneficial is coroutines which employ caching or memoization to avoid actual I/O when possible.
 
-Note
-
-Immediate execution of the coroutine is a semantic change. If the coroutine returns or raises, the task is never scheduled to the event loop. If the coroutine execution blocks, the task is scheduled to the event loop. This change may introduce behavior changes to existing applications. For example, the application’s task execution order is likely to change.
-
-Added in version 3.12.
+> [!NOTE]
+> Immediate execution of the coroutine is a semantic change. If the coroutine returns or raises, the task is never scheduled to the event loop. If the coroutine execution blocks, the task is scheduled to the event loop. This change may introduce behavior changes to existing applications. For example, the application’s task execution order is likely to change.
 
 asyncio.create_eager_task_factory( *custom_task_constructor* ) - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.create_eager_task_factory)
 
@@ -668,7 +670,7 @@ If the wait is cancelled, the future *aw* is also cancelled.
 
 Example:
 
-```
+```python
 async defeternity():
     # Sleep for one hour
     await asyncio.sleep(3600)
@@ -840,7 +842,7 @@ Return a [`concurrent.futures.Future`](https://docs.python.org/3/library/concurr
 
 This function is meant to be called from a different OS thread than the one where the event loop is running. Example:
 
-```
+```python
 defin_thread(loop: asyncio.AbstractEventLoop) -> None:
     # Run some blocking IO
     pathlib.Path("example.txt").write_text("hello world", encoding="utf8")
@@ -864,7 +866,7 @@ async defamain() -> None:
 
 It’s also possible to run the other way around. Example:
 
-```
+```python
 @contextlib.contextmanager
 defloop_in_thread() -> Generator[asyncio.AbstractEventLoop]:
     loop_fut = concurrent.futures.Future[asyncio.AbstractEventLoop]()
@@ -900,7 +902,7 @@ with loop_in_thread() as loop:
 
 If an exception is raised in the coroutine, the returned Future will be notified. It can also be used to cancel the task in the event loop:
 
-```
+```python
 try:
     result = future.result(timeout)
 except TimeoutError:
