@@ -713,19 +713,48 @@ _`asyncio.wait(*aws, *, timeout=None, return_when=ALL_COMPLETED)`_
 
 Run [`Future`](https://docs.python.org/3/library/asyncio-future.html#asyncio.Future) and [`Task`](https://docs.python.org/3/library/asyncio-task.html#asyncio.Task) instances in the *aws* iterable concurrently and block until the condition specified by  *return_when* .
 
-The *aws* iterable must not be empty.
+> [!IMPORTANT]
+> The *aws* iterable must not be empty.
 
 Returns two sets of Tasks/Futures: `(done, pending)`.
 
 Usage:
 
 ```python
-done, pending = await asyncio.wait(aws)
+async def long_task():
+    await asyncio.sleep(10)
+    print('Long Task Complete') # This task will not complete within the timeout
+
+
+async def another_long_task():
+    await asyncio.sleep(5)
+    print('Another Long Task Complete')
+
+
+async def main():
+    try:
+        t1 = asyncio.create_task(long_task())
+        t2 = asyncio.create_task(another_long_task())
+        done, pending = await asyncio.wait([t1, t2], timeout=7) # Done and pending contains the set of tasks
+    except asyncio.TimeoutError:
+        print('The task timed out!')
+    else:
+        print(f'  - Done tasks: {len(done)}')
+        print(f'  - Pending tasks: {len(pending)}')
+```
+
+Result:
+
+```text
+Another Long Task Complete
+  - Done tasks: 1
+  - Pending tasks: 1
 ```
 
 *timeout* (a float or int), if specified, can be used to control the maximum number of seconds to wait before returning.
 
-Note that this function does not raise [`TimeoutError`](https://docs.python.org/3/library/exceptions.html#TimeoutError). Futures or Tasks that aren’t done when the timeout occurs are simply returned in the second set.
+> [!NOTE]
+> Note that this function does not raise [`TimeoutError`](https://docs.python.org/3/library/exceptions.html#TimeoutError). Futures or Tasks that aren’t done when the timeout occurs are simply returned in the second set.
 
 *return_when* indicates when this function should return. It must be one of the following constants:
 
@@ -739,53 +768,71 @@ Unlike [`wait_for()`](https://docs.python.org/3/library/asyncio-task.html#asynci
 
 ### As Completed - [Reference](https://docs.python.org/3/library/asyncio-task.html#as-completed)
 
-_`asyncio.as_completed( *aws* ,  *** ,  *timeout=None* )`_
+_`asyncio.as_completed(*aws, *, *timeout=None)`_
 
 Run [awaitable objects](https://docs.python.org/3/library/asyncio-task.html#asyncio-awaitables) in the *aws* iterable concurrently. The returned object can be iterated to obtain the results of the awaitables as they finish.
 
 The object returned by `as_completed()` can be iterated as an [asynchronous iterator](https://docs.python.org/3/glossary.html#term-asynchronous-iterator) or a plain [iterator](https://docs.python.org/3/glossary.html#term-iterator). When asynchronous iteration is used, the originally-supplied awaitables are yielded if they are tasks or futures. This makes it easy to correlate previously-scheduled tasks with their results. Example:
 
+```python
+async def long_task():
+    await asyncio.sleep(3)
+    return 'Long Task Complete'
+
+
+async def another_long_task():
+    await asyncio.sleep(1)
+    return 'Another Long Task Complete'
+
+
+async def main():
+    t1 = asyncio.create_task(long_task())
+    t2 = asyncio.create_task(another_long_task())
+
+    async for completed_task in asyncio.as_completed([t1, t2]):
+        result = await completed_task
+        print(f'Completed task result: {result}')
 ```
-ipv4_connect = create_task(open_connection("127.0.0.1", 80))
-ipv6_connect = create_task(open_connection("::1", 80))
-tasks = [ipv4_connect, ipv6_connect]
 
-async for earliest_connect in as_completed(tasks):
-    # earliest_connect is done. The result can be obtained by
-    # awaiting it or calling earliest_connect.result()
-    reader, writer = await earliest_connect
+During asynchronous iteration, implicitly-created tasks will be yielded for supplied awaitables that aren’t tasks or futures:
 
-    if earliest_connect is ipv6_connect:
-        print("IPv6 connection established.")
-    else:
-        print("IPv4 connection established.")
+```text
+Completed task result: Another Long Task Complete
+Completed task result: Long Task Complete
 ```
 
-During asynchronous iteration, implicitly-created tasks will be yielded for supplied awaitables that aren’t tasks or futures.
+When used as a plain iterator, each iteration yields a new coroutine that returns the result or raises the exception of the next completed awaitable:
 
-When used as a plain iterator, each iteration yields a new coroutine that returns the result or raises the exception of the next completed awaitable. This pattern is compatible with Python versions older than 3.13:
+```python
+async def long_task():
+    await asyncio.sleep(3)
+    return 'Long Task Complete'
 
+
+async def another_long_task():
+    await asyncio.sleep(1)
+    return 'Another Long Task Complete'
+
+
+async def main():
+    t1 = asyncio.create_task(long_task())
+    t2 = asyncio.create_task(another_long_task())
+
+    for completed_task in asyncio.as_completed([t1, t2]):
+        # completed_task is not one of the original task objects. It must be
+        # awaited to obtain the result value or raise the exception of the
+        # awaitable that finishes next.
+        result = await completed_task
+        print(f'Completed task result: {result}')
 ```
-ipv4_connect = create_task(open_connection("127.0.0.1", 80))
-ipv6_connect = create_task(open_connection("::1", 80))
-tasks = [ipv4_connect, ipv6_connect]
 
-for next_connect in as_completed(tasks):
-    # next_connect is not one of the original task objects. It must be
-    # awaited to obtain the result value or raise the exception of the
-    # awaitable that finishes next.
-    reader, writer = await next_connect
-```
+> [!NOTE]
+> This pattern is compatible with Python versions older than 3.13
+
+> [!IMPORTANT]
+> When using plain iteration, the returned coroutines must be awaited to obtain the result value or raise the exception of the completed awaitable.
 
 A [`TimeoutError`](https://docs.python.org/3/library/exceptions.html#TimeoutError) is raised if the timeout occurs before all awaitables are done. This is raised by the `async for` loop during asynchronous iteration or by the coroutines yielded during plain iteration.
-
-Changed in version 3.10: Removed the *loop* parameter.
-
-Deprecated since version 3.10: Deprecation warning is emitted if not all awaitable objects in the *aws* iterable are Future-like objects and there is no running event loop.
-
-Changed in version 3.12: Added support for generators yielding tasks.
-
-Changed in version 3.13: The result can now be used as either an [asynchronous iterator](https://docs.python.org/3/glossary.html#term-asynchronous-iterator) or as a plain [iterator](https://docs.python.org/3/glossary.html#term-iterator) (previously it was only a plain iterator).
 
 ## [Running in Threads](https://docs.python.org/3/library/asyncio-task.html#id13) - [Reference](https://docs.python.org/3/library/asyncio-task.html#running-in-threads)
 
