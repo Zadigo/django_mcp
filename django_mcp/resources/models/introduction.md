@@ -1092,10 +1092,15 @@ This restriction doesn’t apply to model fields inherited from an abstract mode
 
 > [!NOTE]
 > Some fields define extra attributes on the model, e.g. a [`ForeignKey`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.ForeignKey "django.db.models.ForeignKey") defines an extra attribute with `_id` appended to the field name, as well as `related_name` and `related_query_name` on the foreign model.
+>
 > These extra attributes cannot be overridden unless the field that defines it is changed or removed so that it no longer defines the extra attribute.
+>
 > Overriding fields in a parent model leads to difficulties in areas such as initializing new instances (specifying which field is being initialized in `Model.__init__`) and serialization. These are features which normal Python class inheritance doesn’t have to deal with in quite the same way, so the difference between Django model inheritance and Python class inheritance isn’t arbitrary.
+>
 > This restriction only applies to attributes which are [`Field`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field "django.db.models.Field") instances. Normal Python attributes can be overridden if you wish. It also only applies to the name of the attribute as Python sees it: if you are manually specifying the database column name, you can have the same column name appearing in both a child and an ancestor model for multi-table inheritance (they are columns in two different database tables).
+>
 > Django will raise a [`FieldError`](https://docs.djangoproject.com/en/6.0/ref/exceptions/#django.core.exceptions.FieldError "django.core.exceptions.FieldError") if you override any model field in any ancestor model.
+>
 > Note that because of the way fields are resolved during class definition, model fields inherited from multiple abstract parent models are resolved in a strict depth-first order. This contrasts with standard Python MRO, which is resolved breadth-first in cases of diamond shaped inheritance. This difference only affects complex model hierarchies, which (as per the advice above) you should try to avoid.
 
 ## Organizing models in a package[¶](https://docs.djangoproject.com/en/6.0/topics/db/models/#organizing-models-in-a-package "Link to this heading")
