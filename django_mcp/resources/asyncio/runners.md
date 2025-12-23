@@ -10,7 +10,7 @@ They are built on top of an [event loop](https://docs.python.org/3/library/async
 
 ## [Running an asyncio Program](https://docs.python.org/3/library/asyncio-runner.html#id1)[¶](https://docs.python.org/3/library/asyncio-runner.html#running-an-asyncio-program "Link to this heading")
 
-asyncio.run( *coro* ,  *** ,  *debug=None* ,  *loop_factory=None* )[¶](https://docs.python.org/3/library/asyncio-runner.html#asyncio.run "Link to this definition")Execute *coro* in an asyncio event loop and return the result.
+asyncio.run( *coro* ,  *** ,  *debug=None* ,  *loop_factory=None* )[¶](https://docs.python.org/3/library/asyncio-runner.html#asyncio.run)Execute *coro* in an asyncio event loop and return the result.
 
 The argument can be any awaitable object.
 
@@ -48,7 +48,7 @@ asyncio.run(main())
 
 ## [Runner context manager](https://docs.python.org/3/library/asyncio-runner.html#id2)[¶](https://docs.python.org/3/library/asyncio-runner.html#runner-context-manager "Link to this heading")
 
-classasyncio.Runner( *** ,  *debug=None* ,  *loop_factory=None* )[¶](https://docs.python.org/3/library/asyncio-runner.html#asyncio.Runner "Link to this definition")A context manager that simplifies *multiple* async function calls in the same context.
+classasyncio.Runner( *** ,  *debug=None* ,  *loop_factory=None* )[¶](https://docs.python.org/3/library/asyncio-runner.html#asyncio.Runner)A context manager that simplifies *multiple* async function calls in the same context.
 
 Sometimes several top-level async functions should be called in the same [event loop](https://docs.python.org/3/library/asyncio-eventloop.html#asyncio-event-loop) and [`contextvars.Context`](https://docs.python.org/3/library/contextvars.html#contextvars.Context "contextvars.Context").
 
@@ -72,7 +72,7 @@ with asyncio.Runner() as runner:
 
 ---
 
-[run(coro, *, context=None)](https://docs.python.org/3/library/asyncio-runner.html#asyncio.Runner.run "Link to this definition")Execute *coro* in the embedded event loop.
+[`run(coro, *, context=None)`](https://docs.python.org/3/library/asyncio-runner.html#asyncio.Runner.run)Execute *coro* in the embedded event loop.
 : The argument can be any awaitable object.
 : If the argument is a coroutine, it is wrapped in a Task.
 : An optional keyword-only *context* argument allows specifying a custom [`contextvars.Context`](https://docs.python.org/3/library/contextvars.html#contextvars.Context "contextvars.Context") for the code to run in. The runner’s default context is used if context is `None`.
@@ -81,11 +81,11 @@ with asyncio.Runner() as runner:
 
 Changed in version 3.14: *coro* can be any awaitable object.
 
-close()[¶](https://docs.python.org/3/library/asyncio-runner.html#asyncio.Runner.close "Link to this definition")Close the runner.
+close()[¶](https://docs.python.org/3/library/asyncio-runner.html#asyncio.Runner.close)Close the runner.
 
 Finalize asynchronous generators, shutdown default executor, close the event loop and release embedded [`contextvars.Context`](https://docs.python.org/3/library/contextvars.html#contextvars.Context "contextvars.Context").
 
-get_loop()[¶](https://docs.python.org/3/library/asyncio-runner.html#asyncio.Runner.get_loop "Link to this definition")Return the event loop associated with the runner instance.
+get_loop()[¶](https://docs.python.org/3/library/asyncio-runner.html#asyncio.Runner.get_loop)Return the event loop associated with the runner instance.
 
 > [!NOTE]
 > [`Runner`](https://docs.python.org/3/library/asyncio-runner.html#asyncio.Runner "asyncio.Runner") uses the lazy initialization strategy, its constructor doesn’t initialize underlying low-level structures.
