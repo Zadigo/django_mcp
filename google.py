@@ -1,30 +1,31 @@
 import asyncio
-import time
 
 
 class Database:
-    def __init__(self, name, seconds):
+    def __init__(self, name):
         self.name = name
-        print(f'  - Initializing database {self.name}, will take {seconds} seconds...')
-        time.sleep(seconds)
-        print(f'  - Database {self.name} initialized.\n')
+        print(f'Instanciated database {self.name}...')
+
+    async def __call__(self, seconds):
+        await asyncio.sleep(seconds)
+        print(f'  - Database {self.name} initialized in {seconds} seconds.')
 
 
 async def database_one():
-    print('\nStarting database one initialization...')
-    return Database('DB1', 10)
+    instance = Database('DB1')
+    return await instance(5)
 
 
 async def database_two():
-    print('\nStarting database two initialization...')
-    return Database('DB2', 1)
+    instance = Database('DB2')
+    return await instance(2)
 
 
 async def main():
     async with asyncio.TaskGroup() as tg:
-        t1 = tg.create_task(database_one())
-        t2 = tg.create_task(database_two())
-        print('Waiting for databases to initialize...\n')
+        tg.create_task(database_one())
+        tg.create_task(database_two())
+        print('** Initializing databases...\n')
     print('Databases initialized.')
 
 
