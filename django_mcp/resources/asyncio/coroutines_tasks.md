@@ -557,7 +557,9 @@ Deprecated since version 3.10: Deprecation warning is emitted if *aw* is not Fut
 
 ## [Timeouts](https://docs.python.org/3/library/asyncio-task.html#id11) - [Reference](https://docs.python.org/3/library/asyncio-task.html#timeouts)
 
-asyncio.timeout( *delay* ) - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.timeout)
+### Timeout
+
+_`asyncio.timeout(*delay)`_ - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.timeout)
 
 Return an [asynchronous context manager](https://docs.python.org/3/reference/datamodel.html#async-context-managers) that can be used to limit the amount of time spent waiting on something.
 
@@ -567,78 +569,96 @@ In either case, the context manager can be rescheduled after creation using [`Ti
 
 Example:
 
-```
-async defmain():
-    async with asyncio.timeout(10):
-        await long_running_task()
+```python
+async def long_task():
+    await asyncio.sleep(10)
+    return 'Task Complete'
+
+
+async def main():
+    async with asyncio.timeout(5):
+        try:
+            await long_task()
+        except asyncio.CancelledError:
+            print('The task timed out!')
 ```
 
-If `long_running_task` takes more than 10 seconds to complete, the context manager will cancel the current task and handle the resulting [`asyncio.CancelledError`](https://docs.python.org/3/library/asyncio-exceptions.html#asyncio.CancelledError) internally, transforming it into a [`TimeoutError`](https://docs.python.org/3/library/exceptions.html#TimeoutError "TimeoutError") which can be caught and handled.
+If `long_task` takes more than 5 seconds to complete, the context manager will cancel the current task and handle the resulting [`asyncio.CancelledError`](https://docs.python.org/3/library/asyncio-exceptions.html#asyncio.CancelledError).
 
-Example of catching [`TimeoutError`](https://docs.python.org/3/library/exceptions.html#TimeoutError "TimeoutError"):
 
-```
-async defmain():
+Wrapping the context manager into the try block will transform the `asyncio.CancelledError` into a [`TimeoutError`](https://docs.python.org/3/library/exceptions.html#TimeoutError) which can be caught and handled.
+
+Example of catching [`TimeoutError`](https://docs.python.org/3/library/exceptions.html#TimeoutError):
+
+```python
+async def long_task():
+    await asyncio.sleep(10)
+    return 'Task Complete'
+
+
+async def main():
     try:
-        async with asyncio.timeout(10):
-            await long_running_task()
-    except TimeoutError:
-        print("The long operation timed out, but we've handled it.")
-
-    print("This statement will run regardless.")
+        async with asyncio.timeout(5):
+            await long_task()
+    except asyncio.TimeoutError:
+        print('The task timed out!')
+    except Exception as e:
+        print(f'An error occurred: {e}')
 ```
 
 The context manager produced by [`asyncio.timeout()`](https://docs.python.org/3/library/asyncio-task.html#asyncio.timeout) can be rescheduled to a different deadline and inspected.
 
-classasyncio.Timeout( *when* ) - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.Timeout)
+For example
 
-An [asynchronous context manager](https://docs.python.org/3/reference/datamodel.html#async-context-managers) for cancelling overdue coroutines.
-
-`when` should be an absolute time at which the context should time out, as measured by the event loop’s clock:
-
-> when() → [float](https://docs.python.org/3/library/functions.html#float "float")|[None](https://docs.python.org/3/library/constants.html#None "None") - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.Timeout.when)
-
-Return the current deadline, or `None` if the current deadline is not set.
-
-> reschedule( *when:[float](https://docs.python.org/3/library/functions.html#float "float")|[None](https://docs.python.org/3/library/constants.html#None "None")* ) - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.Timeout.reschedule)
-
-Reschedule the timeout.
-
-> expired() → [bool](https://docs.python.org/3/library/functions.html#bool "bool") - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.Timeout.expired)
-
-Return whether the context manager has exceeded its deadline (expired).
-
-Example:
-
-```
-async defmain():
+```python
+async def main():
     try:
-        # We do not know the timeout when starting, so we pass ``None``.
-        async with asyncio.timeout(None) as cm:
-            # We know the timeout now, so we reschedule it.
-            new_deadline = get_running_loop().time() + 10
+        async with asyncio.timeout(10) as cm:
+            # Some code that may take time
+            await asyncio.sleep(5)
+
+            # Reschedule the timeout to 3 seconds from now
+            new_deadline = asyncio.get_running_loop().time() + 3
             cm.reschedule(new_deadline)
 
-            await long_running_task()
-    except TimeoutError:
-        pass
+            # More code that may take time
+            await asyncio.sleep(5)
+    except asyncio.TimeoutError:
+        print('The operation timed out.')
 
     if cm.expired():
-        print("Looks like we haven't finished on time.")
+        print('The context manager has exceeded its deadline.')
 ```
+
+> [!NOTE]
+> _`classasyncio.Timeout(*when)`_ - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.Timeout)
+>
+> An [asynchronous context manager](https://docs.python.org/3/reference/datamodel.html#async-context-managers) for cancelling overdue coroutines.
+>
+> `when` should be an absolute time at which the context should time out, as measured by the event loop’s clock:
+>
+> when() → [float](https://docs.python.org/3/library/functions.html#float "float")|[None](https://docs.python.org/3/library/constants.html#None "None") - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.Timeout.when)
+>
+> Return the current deadline, or `None` if the current deadline is not set.
+>
+> reschedule( *when:[float](https://docs.python.org/3/library/functions.html#float "float")|[None](https://docs.python.org/3/library/constants.html#None "None")* ) - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.Timeout.reschedule)
+>
+> Reschedule the timeout.
+>
+> expired() → [bool](https://docs.python.org/3/library/functions.html#bool "bool") - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.Timeout.expired)
+>
+> Return whether the context manager has exceeded its deadline (expired).
 
 Timeout context managers can be safely nested.
 
-Added in version 3.11.
-
-asyncio.timeout_at( *when* ) - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.timeout_at)
+_`asyncio.timeout_at(*when)`_ - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.timeout_at)
 
 Similar to [`asyncio.timeout()`](https://docs.python.org/3/library/asyncio-task.html#asyncio.timeout), except *when* is the absolute time to stop waiting, or `None`.
 
 Example:
 
-```
-async defmain():
+```python
+async def main():
     loop = get_running_loop()
     deadline = loop.time() + 20
     try:
@@ -650,9 +670,9 @@ async defmain():
     print("This statement will run regardless.")
 ```
 
-Added in version 3.11.
+### Wait For 
 
-asyncasyncio.wait_for( *aw* ,  *timeout* ) - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.wait_for)
+_`asyncasyncio.wait_for(*aws, *timeout)`_ - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.wait_for)
 
 Wait for the *aw* [awaitable](https://docs.python.org/3/library/asyncio-task.html#asyncio-awaitables) to complete with a timeout.
 
@@ -660,7 +680,7 @@ If *aw* is a coroutine it is automatically scheduled as a Task.
 
 *timeout* can either be `None` or a float or int number of seconds to wait for. If *timeout* is `None`, block until the future completes.
 
-If a timeout occurs, it cancels the task and raises [`TimeoutError`](https://docs.python.org/3/library/exceptions.html#TimeoutError "TimeoutError").
+If a timeout occurs, it cancels the task and raises [`TimeoutError`](https://docs.python.org/3/library/exceptions.html#TimeoutError).
 
 To avoid the task [`cancellation`](https://docs.python.org/3/library/asyncio-task.html#asyncio.Task.cancel), wrap it in [`shield()`](https://docs.python.org/3/library/asyncio-task.html#asyncio.shield "asyncio.shield").
 
@@ -671,32 +691,25 @@ If the wait is cancelled, the future *aw* is also cancelled.
 Example:
 
 ```python
-async defeternity():
-    # Sleep for one hour
-    await asyncio.sleep(3600)
-    print('yay!')
+async def long_task():
+    await asyncio.sleep(10)
+    return 'Task Complete'
 
-async defmain():
-    # Wait for at most 1 second
+
+async def main():
     try:
-        await asyncio.wait_for(eternity(), timeout=1.0)
-    except TimeoutError:
-        print('timeout!')
-
-asyncio.run(main())
-
-# Expected output:
-#
-#     timeout!
+        await asyncio.wait_for(long_task(), timeout=5)
+    except asyncio.TimeoutError:
+        print('The task timed out!')
 ```
 
-Changed in version 3.7: When *aw* is cancelled due to a timeout, `wait_for` waits for *aw* to be cancelled. Previously, it raised [`TimeoutError`](https://docs.python.org/3/library/exceptions.html#TimeoutError "TimeoutError") immediately.
+## Waiting Primitives - [Reference](https://docs.python.org/3/library/asyncio-task.html#waiting-primitives)
 
-Changed in version 3.10: Removed the *loop* parameter.
+Waiting primitives allow waiting for multiple [`Future`](https://docs.python.org/3/library/asyncio-future.html#asyncio.Future) or [`Task`](https://docs.python.org/3/library/asyncio-task.html#asyncio.Task) instances.
 
-## [Waiting Primitives](https://docs.python.org/3/library/asyncio-task.html#id12) - [Reference](https://docs.python.org/3/library/asyncio-task.html#waiting-primitives)
+### Wait - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.wait)
 
-asyncasyncio.wait( *aws* ,  *** ,  *timeout=None* ,  *return_when=ALL_COMPLETED* ) - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.wait)
+_`asyncio.wait(*aws, *, timeout=None, return_when=ALL_COMPLETED)`_
 
 Run [`Future`](https://docs.python.org/3/library/asyncio-future.html#asyncio.Future) and [`Task`](https://docs.python.org/3/library/asyncio-task.html#asyncio.Task) instances in the *aws* iterable concurrently and block until the condition specified by  *return_when* .
 
@@ -706,37 +719,27 @@ Returns two sets of Tasks/Futures: `(done, pending)`.
 
 Usage:
 
-```
+```python
 done, pending = await asyncio.wait(aws)
 ```
 
 *timeout* (a float or int), if specified, can be used to control the maximum number of seconds to wait before returning.
 
-Note that this function does not raise [`TimeoutError`](https://docs.python.org/3/library/exceptions.html#TimeoutError "TimeoutError"). Futures or Tasks that aren’t done when the timeout occurs are simply returned in the second set.
+Note that this function does not raise [`TimeoutError`](https://docs.python.org/3/library/exceptions.html#TimeoutError). Futures or Tasks that aren’t done when the timeout occurs are simply returned in the second set.
 
 *return_when* indicates when this function should return. It must be one of the following constants:
 
-| Constant                                                                                                       | Description |
-| -------------------------------------------------------------------------------------------------------------- | ----------- |
-| asyncio.FIRST_COMPLETED -[Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.FIRST_COMPLETED) |             |
-
- | The function will return when any future finishes or is cancelled.                                                                                                                                                                                                 |
-| asyncio.FIRST_EXCEPTION - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.FIRST_EXCEPTION)
-
- | The function will return when any future finishes by raising an exception. If no future raises an exception then it is equivalent to[`ALL_COMPLETED`](https://docs.python.org/3/library/asyncio-task.html#asyncio.ALL_COMPLETED "asyncio.ALL_COMPLETED"). |
-| asyncio.ALL_COMPLETED - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.ALL_COMPLETED)
-
-    | The function will return when all futures finish or are cancelled.                                                                                                                                                                                                 |
+| Constant                 | Description                                                                                                                                                  | 
+| -------------------------| ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| asyncio.FIRST_COMPLETED  | The function will return when any future finishes or is cancelled.                                                                                           |
+| asyncio.FIRST_EXCEPTION  | The function will return when any future finishes by raising an exception. If no future raises an exception then it is equivalent to asyncio.FIRST_COMPLETED |
+| asyncio.ALL_COMPLETED    | The function will return when all futures finish or are cancelled.                                                                                           |
 
 Unlike [`wait_for()`](https://docs.python.org/3/library/asyncio-task.html#asyncio.wait_for "asyncio.wait_for"), `wait()` does not cancel the futures when a timeout occurs.
 
-Changed in version 3.10: Removed the *loop* parameter.
+### As Completed - [Reference](https://docs.python.org/3/library/asyncio-task.html#as-completed)
 
-Changed in version 3.11: Passing coroutine objects to `wait()` directly is forbidden.
-
-Changed in version 3.12: Added support for generators yielding tasks.
-
-asyncio.as_completed( *aws* ,  *** ,  *timeout=None* ) - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.as_completed)
+_`asyncio.as_completed( *aws* ,  *** ,  *timeout=None* )`_
 
 Run [awaitable objects](https://docs.python.org/3/library/asyncio-task.html#asyncio-awaitables) in the *aws* iterable concurrently. The returned object can be iterated to obtain the results of the awaitables as they finish.
 
@@ -774,7 +777,7 @@ for next_connect in as_completed(tasks):
     reader, writer = await next_connect
 ```
 
-A [`TimeoutError`](https://docs.python.org/3/library/exceptions.html#TimeoutError "TimeoutError") is raised if the timeout occurs before all awaitables are done. This is raised by the `async for` loop during asynchronous iteration or by the coroutines yielded during plain iteration.
+A [`TimeoutError`](https://docs.python.org/3/library/exceptions.html#TimeoutError) is raised if the timeout occurs before all awaitables are done. This is raised by the `async for` loop during asynchronous iteration or by the coroutines yielded during plain iteration.
 
 Changed in version 3.10: Removed the *loop* parameter.
 

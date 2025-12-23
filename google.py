@@ -1,15 +1,16 @@
 import asyncio
 
 
-async def waiting_to_print():
-    return 'Waited and printed!'
+async def long_task():
+    await asyncio.sleep(10)
+    return 'Task Complete'
 
 
 async def main():
-    print('Starting wait...')
-    value = await asyncio.sleep(3, result=await waiting_to_print())
-    print('Finished waiting:', value)
-
+    try:
+        await asyncio.wait_for(long_task(), timeout=5)
+    except asyncio.TimeoutError:
+        print('The task timed out!')
 
 if __name__ == '__main__':
     asyncio.run(main())
