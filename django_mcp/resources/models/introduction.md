@@ -98,13 +98,13 @@ Each field takes a certain set of field-specific arguments (documented in the [m
 
 There’s also a set of common arguments available to all field types. All are optional. They’re fully explained in the [reference](https://docs.djangoproject.com/en/6.0/ref/models/fields/#common-model-field-options), but here’s a quick summary of the most often-used ones:
 
-[`<span tts-paragraph-index="183"><span class="tts-paragraph-player"><span class="tts-circle"><span class="tts-paragraph-player-button tts-play-icon" title="Lecture/Pause">null`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.null "django.db.models.Field.null")If `True`, Django will store empty values as `NULL` in the database. Default is `False`.
+[`null`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.null "django.db.models.Field.null")If `True`, Django will store empty values as `NULL` in the database. Default is `False`.
 
-[`<span tts-paragraph-index="185"><span class="tts-paragraph-player"><span class="tts-circle"><span class="tts-paragraph-player-button tts-play-icon" title="Lecture/Pause">blank`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.blank "django.db.models.Field.blank")If `True`, the field is allowed to be blank. Default is `False`.
+[`blank`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.blank "django.db.models.Field.blank")If `True`, the field is allowed to be blank. Default is `False`.
 
 Note that this is different than [`null`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.null "django.db.models.Field.null"). [`null`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.null "django.db.models.Field.null") is purely database-related, whereas [`blank`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.blank "django.db.models.Field.blank") is validation-related. If a field has [`blank=True`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.blank "django.db.models.Field.blank"), form validation will allow entry of an empty value. If a field has [`blank=False`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.blank "django.db.models.Field.blank"), the field will be required.
 
-[`<span tts-paragraph-index="188"><span class="tts-paragraph-player"><span class="tts-circle"><span class="tts-paragraph-player-button tts-play-icon" title="Lecture/Pause">choices`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.choices "django.db.models.Field.choices")A [sequence](https://docs.python.org/3/glossary.html#term-sequence "(in Python v3.14)") of 2-value tuples, a [mapping](https://docs.python.org/3/glossary.html#term-mapping "(in Python v3.14)"), an [enumeration type](https://docs.djangoproject.com/en/6.0/ref/models/fields/#field-choices-enum-types), or a callable (that expects no arguments and returns any of the previous formats), to use as choices for this field. If this is given, the default form widget will be a select box instead of the standard text field and will limit choices to the choices given.
+[`choices`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.choices "django.db.models.Field.choices")A [sequence](https://docs.python.org/3/glossary.html#term-sequence "(in Python v3.14)") of 2-value tuples, a [mapping](https://docs.python.org/3/glossary.html#term-mapping "(in Python v3.14)"), an [enumeration type](https://docs.djangoproject.com/en/6.0/ref/models/fields/#field-choices-enum-types), or a callable (that expects no arguments and returns any of the previous formats), to use as choices for this field. If this is given, the default form widget will be a select box instead of the standard text field and will limit choices to the choices given.
 
 A choices list looks like this:
 
@@ -126,11 +126,11 @@ The first element in each tuple is the value that will be stored in the database
 
 Given a model instance, the display value for a field with `choices` can be accessed using the [`get_FOO_display()`](https://docs.djangoproject.com/en/6.0/ref/models/instances/#django.db.models.Model.get_FOO_display "django.db.models.Model.get_FOO_display") method. For example:
 
-```
-fromdjango.dbimport models
+```python
+from django.db import models
 
 
-classPerson(models.Model):
+class Person(models.Model):
     SHIRT_SIZES = {
         "S": "Small",
         "M": "Medium",
@@ -140,22 +140,23 @@ classPerson(models.Model):
     shirt_size = models.CharField(max_length=1, choices=SHIRT_SIZES)
 ```
 
-```
+```python
 >>> p = Person(name="Fred Flintstone", shirt_size="L")
 >>> p.save()
 >>> p.shirt_size
 'L'
+
 >>> p.get_shirt_size_display()
 'Large'
 ```
 
 You can also use enumeration classes to define `choices` in a concise way:
 
-```
-fromdjango.dbimport models
+```python
+from django.db import models
 
 
-classRunner(models.Model):
+class Runner(models.Model):
     MedalType = models.TextChoices("MedalType", "GOLD SILVER BRONZE")
     name = models.CharField(max_length=60)
     medal = models.CharField(blank=True, choices=MedalType, max_length=10)
@@ -163,37 +164,37 @@ classRunner(models.Model):
 
 Further examples are available in the [model field reference](https://docs.djangoproject.com/en/6.0/ref/models/fields/#field-choices).
 
-[`<span tts-paragraph-index="355"><span class="tts-paragraph-player"><span class="tts-circle"><span class="tts-paragraph-player-button tts-play-icon" title="Lecture/Pause">default`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.default "django.db.models.Field.default")The default value for the field. This can be a value or a callable object. If callable it will be called every time a new object is created.
+[`default`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.default "django.db.models.Field.default")The default value for the field. This can be a value or a callable object. If callable it will be called every time a new object is created.
 
-[`<span tts-paragraph-index="357"><span class="tts-paragraph-player"><span class="tts-circle"><span class="tts-paragraph-player-button tts-play-icon" title="Lecture/Pause">db_default`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.db_default "django.db.models.Field.db_default")The database-computed default value for the field. This can be a literal value or a database function.
+[`db_default`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.db_default "django.db.models.Field.db_default")The database-computed default value for the field. This can be a literal value or a database function.
 
 If both `db_default` and [`Field.default`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.default "django.db.models.Field.default") are set, `default` will take precedence when creating instances in Python code. `db_default` will still be set at the database level and will be used when inserting rows outside of the ORM or when adding a new field in a migration.
 
-[`<span tts-paragraph-index="360"><span class="tts-paragraph-player"><span class="tts-circle"><span class="tts-paragraph-player-button tts-play-icon" title="Lecture/Pause">help_text`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.help_text "django.db.models.Field.help_text")Extra “help” text to be displayed with the form widget. It’s useful for documentation even if your field isn’t used on a form.
-
-[`<span tts-paragraph-index="362"><span class="tts-paragraph-player"><span class="tts-circle"><span class="tts-paragraph-player-button tts-play-icon" title="Lecture/Pause">primary_key`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.primary_key "django.db.models.Field.primary_key")If `True`, this field is the primary key for the model.
+[`help_text`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.help_text "django.db.models.Field.help_text")Extra “help” text to be displayed with the form widget. It’s useful for documentation even if your field isn’t used on a form.
+[`primary_key`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.primary_key "django.db.models.Field.primary_key")If `True`, this field is the primary key for the model.
 
 If you don’t specify [`primary_key=True`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.primary_key "django.db.models.Field.primary_key") for any fields in your model, Django will automatically add a field to hold the primary key, so you don’t need to set [`primary_key=True`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.primary_key "django.db.models.Field.primary_key") on any of your fields unless you want to override the default primary-key behavior. For more, see [Automatic primary key fields](https://docs.djangoproject.com/en/6.0/topics/db/models/#automatic-primary-key-fields).
 
 The primary key field is read-only. If you change the value of the primary key on an existing object and then save it, a new object will be created alongside the old one. For example:
 
-```
-fromdjango.dbimport models
+```python
+from django.db import models
 
 
-classFruit(models.Model):
+class Fruit(models.Model):
     name = models.CharField(max_length=100, primary_key=True)
 ```
 
-```
+```python
 >>> fruit = Fruit.objects.create(name="Apple")
 >>> fruit.name = "Pear"
 >>> fruit.save()
+
 >>> Fruit.objects.values_list("name", flat=True)
 <QuerySet ['Apple', 'Pear']>
 ```
 
-[`<span tts-paragraph-index="429"><span class="tts-paragraph-player"><span class="tts-circle"><span class="tts-paragraph-player-button tts-play-icon" title="Lecture/Pause">unique`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.unique "django.db.models.Field.unique")If `True`, this field must be unique throughout the table.
+[`unique`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.unique "django.db.models.Field.unique")If `True`, this field must be unique throughout the table.
 
 Again, these are just short descriptions of the most common field options. Full details can be found in the [common model field option reference](https://docs.djangoproject.com/en/6.0/ref/models/fields/#common-model-field-options).
 
@@ -201,7 +202,7 @@ Again, these are just short descriptions of the most common field options. Full 
 
 By default, Django gives each model an auto-incrementing primary key with the type specified per app in [`AppConfig.default_auto_field`](https://docs.djangoproject.com/en/6.0/ref/applications/#django.apps.AppConfig.default_auto_field "django.apps.AppConfig.default_auto_field") or globally in the [`DEFAULT_AUTO_FIELD`](https://docs.djangoproject.com/en/6.0/ref/settings/#std-setting-DEFAULT_AUTO_FIELD) setting. For example:
 
-```
+```python
 id = models.BigAutoField(primary_key=True)
 ```
 
@@ -215,24 +216,25 @@ Each field type, except for [`ForeignKey`](https://docs.djangoproject.com/en/6.0
 
 In this example, the verbose name is `"person's first name"`:
 
-```
+```python
 first_name = models.CharField("person's first name", max_length=30)
 ```
 
 In this example, the verbose name is `"first name"`:
 
-```
+```python
 first_name = models.CharField(max_length=30)
 ```
 
 [`ForeignKey`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.ForeignKey "django.db.models.ForeignKey"), [`ManyToManyField`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.ManyToManyField "django.db.models.ManyToManyField") and [`OneToOneField`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.OneToOneField "django.db.models.OneToOneField") require the first argument to be a model class, so use the [`verbose_name`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field.verbose_name "django.db.models.Field.verbose_name") keyword argument:
 
-```
+```python
 poll = models.ForeignKey(
     Poll,
     on_delete=models.CASCADE,
     verbose_name="the related poll",
 )
+
 sites = models.ManyToManyField(Site, verbose_name="list of sites")
 place = models.OneToOneField(
     Place,
@@ -255,16 +257,16 @@ To define a many-to-one relationship, use [`django.db.models.ForeignKey`](https:
 
 For example, if a `Car` model has a `Manufacturer` – that is, a `Manufacturer` makes multiple cars but each `Car` only has one `Manufacturer` – use the following definitions:
 
-```
-fromdjango.dbimport models
+```python
+from django.db import models
 
 
-classManufacturer(models.Model):
+class Manufacturer(models.Model):
     # ...
     pass
 
 
-classCar(models.Model):
+class Car(models.Model):
     manufacturer = models.ForeignKey(Manufacturer, on_delete=models.CASCADE)
     # ...
 ```
@@ -273,8 +275,8 @@ You can also create [recursive relationships](https://docs.djangoproject.com/en/
 
 It’s suggested, but not required, that the name of a [`ForeignKey`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.ForeignKey "django.db.models.ForeignKey") field (`manufacturer` in the example above) be the name of the model, lowercase. You can call the field whatever you want. For example:
 
-```
-classCar(models.Model):
+```python
+class Car(models.Model):
     company_that_makes_it = models.ForeignKey(
         Manufacturer,
         on_delete=models.CASCADE,
@@ -290,16 +292,16 @@ To define a many-to-many relationship, use [`ManyToManyField`](https://docs.djan
 
 For example, if a `Pizza` has multiple `Topping` objects – that is, a `Topping` can be on multiple pizzas and each `Pizza` has multiple toppings – here’s how you’d represent that:
 
-```
-fromdjango.dbimport models
+```python
+from django.db import models
 
 
-classTopping(models.Model):
+class Topping(models.Model):
     # ...
     pass
 
 
-classPizza(models.Model):
+class Pizza(models.Model):
     # ...
     toppings = models.ManyToManyField(Topping)
 ```
@@ -322,32 +324,32 @@ For example, consider the case of an application tracking the musical groups whi
 
 For these situations, Django allows you to specify the model that will be used to govern the many-to-many relationship. You can then put extra fields on the intermediate model. The intermediate model is associated with the [`ManyToManyField`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.ManyToManyField "django.db.models.ManyToManyField") using the [`through`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.ManyToManyField.through "django.db.models.ManyToManyField.through") argument to point to the model that will act as an intermediary. For our musician example, the code would look something like this:
 
-```
-fromdjango.dbimport models
+```python
+from django.db import models
 
 
-classPerson(models.Model):
+class Person(models.Model):
     name = models.CharField(max_length=128)
 
-    def__str__(self):
+    def __str__(self):
         return self.name
 
 
-classGroup(models.Model):
+class Group(models.Model):
     name = models.CharField(max_length=128)
     members = models.ManyToManyField(Person, through="Membership")
 
-    def__str__(self):
+    def __str__(self):
         return self.name
 
 
-classMembership(models.Model):
+class Membership(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     date_joined = models.DateField()
     invite_reason = models.CharField(max_length=64)
 
-    classMeta:
+    class Meta:
         constraints = [
             models.UniqueConstraint(
                 fields=["person", "group"], name="unique_person_group"
@@ -366,7 +368,7 @@ There are a few restrictions on the intermediate model:
 
 Now that you have set up your [`ManyToManyField`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.ManyToManyField "django.db.models.ManyToManyField") to use your intermediary model (`Membership`, in this case), you’re ready to start creating some many-to-many relationships. You do this by creating instances of the intermediate model:
 
-```
+```python
 >>> ringo = Person.objects.create(name="Ringo Starr")
 >>> paul = Person.objects.create(name="Paul McCartney")
 >>> beatles = Group.objects.create(name="The Beatles")
@@ -377,8 +379,10 @@ Now that you have set up your [`ManyToManyField`](https://docs.djangoproject.com
 ...     invite_reason="Needed a new drummer.",
 ... )
 >>> m1.save()
+
 >>> beatles.members.all()
 <QuerySet [<Person: Ringo Starr>]>
+
 >>> ringo.group_set.all()
 <QuerySet [<Group: The Beatles>]>
 >>> m2 = Membership.objects.create(
@@ -387,35 +391,34 @@ Now that you have set up your [`ManyToManyField`](https://docs.djangoproject.com
 ...     date_joined=date(1960, 8, 1),
 ...     invite_reason="Wanted to form a band.",
 ... )
+
 >>> beatles.members.all()
 <QuerySet [<Person: Ringo Starr>, <Person: Paul McCartney>]>
 ```
 
 You can also use [`add()`](https://docs.djangoproject.com/en/6.0/ref/models/relations/#django.db.models.fields.related.RelatedManager.add "django.db.models.fields.related.RelatedManager.add"), [`create()`](https://docs.djangoproject.com/en/6.0/ref/models/relations/#django.db.models.fields.related.RelatedManager.create "django.db.models.fields.related.RelatedManager.create"), or [`set()`](https://docs.djangoproject.com/en/6.0/ref/models/relations/#django.db.models.fields.related.RelatedManager.set "django.db.models.fields.related.RelatedManager.set") to create relationships, as long as you specify `through_defaults` for any required fields:
 
-```
+```python
 >>> beatles.members.add(john, through_defaults={"date_joined": date(1960, 8, 1)})
->>> beatles.members.create(
-...     name="George Harrison", through_defaults={"date_joined": date(1960, 8, 1)}
-... )
->>> beatles.members.set(
-...     [john, paul, ringo, george], through_defaults={"date_joined": date(1960, 8, 1)}
-... )
+>>> beatles.members.create(name="George Harrison", through_defaults={"date_joined": date(1960, 8, 1)})
+>>> beatles.members.set([john, paul, ringo, george], through_defaults={"date_joined": date(1960, 8, 1)})
 ```
 
 You may prefer to create instances of the intermediate model directly.
 
 If the custom through table defined by the intermediate model does not enforce uniqueness on the `(model1, model2)` pair, allowing multiple values, the [`remove()`](https://docs.djangoproject.com/en/6.0/ref/models/relations/#django.db.models.fields.related.RelatedManager.remove "django.db.models.fields.related.RelatedManager.remove") call will remove all intermediate model instances:
 
-```
+```python
 >>> Membership.objects.create(
 ...     person=ringo,
 ...     group=beatles,
 ...     date_joined=date(1968, 9, 4),
 ...     invite_reason="You've been gone for a month and we miss you.",
 ... )
+
 >>> beatles.members.all()
 <QuerySet [<Person: Ringo Starr>, <Person: Paul McCartney>, <Person: Ringo Starr>]>
+
 >>> # This deletes both of the intermediate model instances for Ringo Starr
 >>> beatles.members.remove(ringo)
 >>> beatles.members.all()
@@ -424,9 +427,10 @@ If the custom through table defined by the intermediate model does not enforce u
 
 The [`clear()`](https://docs.djangoproject.com/en/6.0/ref/models/relations/#django.db.models.fields.related.RelatedManager.clear "django.db.models.fields.related.RelatedManager.clear") method can be used to remove all many-to-many relationships for an instance:
 
-```
+```python
 >>> # Beatles have broken up
 >>> beatles.members.clear()
+
 >>> # Note that this deletes the intermediate model instances
 >>> Membership.objects.all()
 <QuerySet []>
@@ -434,16 +438,18 @@ The [`clear()`](https://docs.djangoproject.com/en/6.0/ref/models/relations/#djan
 
 Once you have established the many-to-many relationships, you can issue queries. Just as with normal many-to-many relationships, you can query using the attributes of the many-to-many-related model:
 
-```
+```python
 # Find all the groups with a member whose name starts with 'Paul'
+
 >>> Group.objects.filter(members__name__startswith="Paul")
 <QuerySet [<Group: The Beatles>]>
 ```
 
 As you are using an intermediate model, you can also query on its attributes:
 
-```
+```python
 # Find all the members of the Beatles that joined after 1 Jan 1961
+
 >>> Person.objects.filter(
 ...     group__name="The Beatles", membership__date_joined__gt=date(1961, 1, 1)
 ... )
@@ -452,7 +458,7 @@ As you are using an intermediate model, you can also query on its attributes:
 
 If you need to access a membership’s information you may do so by directly querying the `Membership` model:
 
-```
+```python
 >>> ringos_membership = Membership.objects.get(group=beatles, person=ringo)
 >>> ringos_membership.date_joined
 datetime.date(1962, 8, 16)
@@ -570,7 +576,7 @@ A complete list of all possible `Meta` options can be found in the [model option
 
 ## Model attributes[¶](https://docs.djangoproject.com/en/6.0/topics/db/models/#model-attributes "Link to this heading")
 
-`<span tts-paragraph-index="1320"><span class="tts-paragraph-player"><span class="tts-circle"><span class="tts-paragraph-player-button tts-play-icon" title="Lecture/Pause">objects`The most important attribute of a model is the [`Manager`](https://docs.djangoproject.com/en/6.0/topics/db/managers/#django.db.models.Manager "django.db.models.Manager"). It’s the interface through which database query operations are provided to Django models and is used to [retrieve the instances](https://docs.djangoproject.com/en/6.0/topics/db/queries/#retrieving-objects) from the database. If no custom `Manager` is defined, the default name is [`objects`](https://docs.djangoproject.com/en/6.0/ref/models/class/#django.db.models.Model.objects "django.db.models.Model.objects"). Managers are only accessible via model classes, not the model instances.
+`<span tts-paragraph-index="1320"><span class="tts-paragraph-player-button tts-play-icon" title="Lecture/Pause">objects`The most important attribute of a model is the [`Manager`](https://docs.djangoproject.com/en/6.0/topics/db/managers/#django.db.models.Manager "django.db.models.Manager"). It’s the interface through which database query operations are provided to Django models and is used to [retrieve the instances](https://docs.djangoproject.com/en/6.0/topics/db/queries/#retrieving-objects) from the database. If no custom `Manager` is defined, the default name is [`objects`](https://docs.djangoproject.com/en/6.0/ref/models/class/#django.db.models.Model.objects "django.db.models.Model.objects"). Managers are only accessible via model classes, not the model instances.
 
 ## Model methods[¶](https://docs.djangoproject.com/en/6.0/topics/db/models/#model-methods "Link to this heading")
 
@@ -610,11 +616,11 @@ The last method in this example is a [property](https://docs.djangoproject.com/e
 
 The [model instance reference](https://docs.djangoproject.com/en/6.0/ref/models/instances/) has a complete list of [methods automatically given to each model](https://docs.djangoproject.com/en/6.0/ref/models/instances/#model-instance-methods). You can override most of these – see [overriding predefined model methods](https://docs.djangoproject.com/en/6.0/topics/db/models/#overriding-predefined-model-methods), below – but there are a couple that you’ll almost always want to define:
 
-[`<span tts-paragraph-index="1432"><span class="tts-paragraph-player"><span class="tts-circle"><span class="tts-paragraph-player-button tts-play-icon" title="Lecture/Pause">__str__()`](https://docs.djangoproject.com/en/6.0/ref/models/instances/#django.db.models.Model.__str__ "django.db.models.Model.__str__")A Python “magic method” that returns a string representation of any object. This is what Python and Django will use whenever a model instance needs to be coerced and displayed as a plain string. Most notably, this happens when you display an object in an interactive console or in the admin.
+[`__str__()`](https://docs.djangoproject.com/en/6.0/ref/models/instances/#django.db.models.Model.__str__ "django.db.models.Model.__str__")A Python “magic method” that returns a string representation of any object. This is what Python and Django will use whenever a model instance needs to be coerced and displayed as a plain string. Most notably, this happens when you display an object in an interactive console or in the admin.
 
 You’ll always want to define this method; the default isn’t very helpful at all.
 
-[`<span tts-paragraph-index="1435"><span class="tts-paragraph-player"><span class="tts-circle"><span class="tts-paragraph-player-button tts-play-icon" title="Lecture/Pause">get_absolute_url()`](https://docs.djangoproject.com/en/6.0/ref/models/instances/#django.db.models.Model.get_absolute_url "django.db.models.Model.get_absolute_url")This tells Django how to calculate the URL for an object. Django uses this in its admin interface, and any time it needs to figure out a URL for an object.
+[`get_absolute_url()`](https://docs.djangoproject.com/en/6.0/ref/models/instances/#django.db.models.Model.get_absolute_url "django.db.models.Model.get_absolute_url")This tells Django how to calculate the URL for an object. Django uses this in its admin interface, and any time it needs to figure out a URL for an object.
 
 Any object that has a URL that uniquely identifies it should define this method.
 
@@ -626,15 +632,15 @@ You’re free to override these methods (and any other model method) to alter be
 
 A classic use-case for overriding the built-in methods is if you want something to happen whenever you save an object. For example (see [`save()`](https://docs.djangoproject.com/en/6.0/ref/models/instances/#django.db.models.Model.save "django.db.models.Model.save") for documentation of the parameters it accepts):
 
-```
-fromdjango.dbimport models
+```python
+from django.db import models
 
 
-classBlog(models.Model):
+class Blog(models.Model):
     name = models.CharField(max_length=100)
     tagline = models.TextField()
 
-    defsave(self, **kwargs):
+    def save(self, **kwargs):
         do_something()
         super().save(**kwargs)  # Call the "real" save() method.
         do_something_else()
@@ -642,15 +648,15 @@ classBlog(models.Model):
 
 You can also prevent saving:
 
-```
-fromdjango.dbimport models
+```python
+from django.db import models
 
 
-classBlog(models.Model):
+class Blog(models.Model):
     name = models.CharField(max_length=100)
     tagline = models.TextField()
 
-    defsave(self, **kwargs):
+    def save(self, **kwargs):
         if self.name == "Yoko Ono's blog":
             return  # Yoko shall never have her own blog!
         else:
@@ -663,16 +669,16 @@ It’s also important that you pass through the arguments that can be passed to 
 
 If you wish to update a field value in the [`save()`](https://docs.djangoproject.com/en/6.0/ref/models/instances/#django.db.models.Model.save "django.db.models.Model.save") method, you may also want to have this field added to the `update_fields` keyword argument. This will ensure the field is saved when `update_fields` is specified. For example:
 
-```
-fromdjango.dbimport models
-fromdjango.utils.textimport slugify
+```python
+from django.db import models
+from django.utils.text import slugify
 
 
-classBlog(models.Model):
+class Blog(models.Model):
     name = models.CharField(max_length=100)
     slug = models.TextField()
 
-    defsave(self, **kwargs):
+    def save(self, **kwargs):
         self.slug = slugify(self.name)
         if (
             update_fields := kwargs.get("update_fields")
@@ -705,19 +711,19 @@ Abstract base classes are useful when you want to put some common information in
 
 An example:
 
-```
-fromdjango.dbimport models
+```python
+from django.db import models
 
 
-classCommonInfo(models.Model):
+class CommonInfo(models.Model):
     name = models.CharField(max_length=100)
     age = models.PositiveIntegerField()
 
-    classMeta:
+    class Meta:
         abstract = True
 
 
-classStudent(CommonInfo):
+class Student(CommonInfo):
     home_group = models.CharField(max_length=5)
 ```
 
@@ -731,20 +737,20 @@ For many uses, this type of model inheritance will be exactly what you want. It 
 
 When an abstract base class is created, Django makes any [Meta](https://docs.djangoproject.com/en/6.0/topics/db/models/#meta-options) inner class you declared in the base class available as an attribute. If a child class does not declare its own [Meta](https://docs.djangoproject.com/en/6.0/topics/db/models/#meta-options) class, it will inherit the parent’s [Meta](https://docs.djangoproject.com/en/6.0/topics/db/models/#meta-options). If the child wants to extend the parent’s [Meta](https://docs.djangoproject.com/en/6.0/topics/db/models/#meta-options) class, it can subclass it. For example:
 
-```
-fromdjango.dbimport models
+```python
+from django.db import models
 
 
-classCommonInfo(models.Model):
+class CommonInfo(models.Model):
     # ...
-    classMeta:
+    class Meta:
         abstract = True
         ordering = ["name"]
 
 
-classStudent(CommonInfo):
+class Student(CommonInfo):
     # ...
-    classMeta(CommonInfo.Meta):
+    class Meta(CommonInfo.Meta):
         db_table = "student_info"
 ```
 
@@ -754,29 +760,29 @@ Some attributes won’t make sense to include in the [Meta](https://docs.djangop
 
 Due to the way Python inheritance works, if a child class inherits from multiple abstract base classes, only the [Meta](https://docs.djangoproject.com/en/6.0/topics/db/models/#meta-options) options from the first listed class will be inherited by default. To inherit [Meta](https://docs.djangoproject.com/en/6.0/topics/db/models/#meta-options) options from multiple abstract base classes, you must explicitly declare the [Meta](https://docs.djangoproject.com/en/6.0/topics/db/models/#meta-options) inheritance. For example:
 
-```
-fromdjango.dbimport models
+```python
+from django.db import models
 
 
-classCommonInfo(models.Model):
+class CommonInfo(models.Model):
     name = models.CharField(max_length=100)
     age = models.PositiveIntegerField()
 
-    classMeta:
+    class Meta:
         abstract = True
         ordering = ["name"]
 
 
-classUnmanaged(models.Model):
-    classMeta:
+class Unmanaged(models.Model):
+    class Meta:
         abstract = True
         managed = False
 
 
-classStudent(CommonInfo, Unmanaged):
+class Student(CommonInfo, Unmanaged):
     home_group = models.CharField(max_length=5)
 
-    classMeta(CommonInfo.Meta, Unmanaged.Meta):
+    class Meta(CommonInfo.Meta, Unmanaged.Meta):
         pass
 ```
 
@@ -791,11 +797,11 @@ To work around this problem, when you are using [`related_name`](https://docs.dj
 
 For example, given an app `common/models.py`:
 
-```
-fromdjango.dbimport models
+```python
+from django.db import models
 
 
-classBase(models.Model):
+class Base(models.Model):
     m2m = models.ManyToManyField(
         OtherModel,
         related_name="%(app_label)s_%(class)s_related",
@@ -806,21 +812,21 @@ classBase(models.Model):
         abstract = True
 
 
-classChildA(Base):
+class ChildA(Base):
     pass
 
 
-classChildB(Base):
+class ChildB(Base):
     pass
 ```
 
 Along with another app `rare/models.py`:
 
-```
-fromcommon.modelsimport Base
+```python
+from common.models import Base
 
 
-classChildB(Base):
+class ChildB(Base):
     pass
 ```
 
@@ -832,30 +838,30 @@ If you don’t specify a [`related_name`](https://docs.djangoproject.com/en/6.0/
 
 The second type of model inheritance supported by Django is when each model in the hierarchy is a model all by itself. Each model corresponds to its own database table and can be queried and created individually. The inheritance relationship introduces links between the child model and each of its parents (via an automatically-created [`OneToOneField`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.OneToOneField "django.db.models.OneToOneField")). For example:
 
-```
-fromdjango.dbimport models
+```python
+from django.db import models
 
 
-classPlace(models.Model):
+class Place(models.Model):
     name = models.CharField(max_length=50)
     address = models.CharField(max_length=80)
 
 
-classRestaurant(Place):
+class Restaurant(Place):
     serves_hot_dogs = models.BooleanField(default=False)
     serves_pizza = models.BooleanField(default=False)
 ```
 
 All of the fields of `Place` will also be available in `Restaurant`, although the data will reside in a different database table. So these are both possible:
 
-```
+```python
 >>> Place.objects.filter(name="Bob's Cafe")
 >>> Restaurant.objects.filter(name="Bob's Cafe")
 ```
 
 If you have a `Place` that is also a `Restaurant`, you can get from the `Place` object to the `Restaurant` object by using the lowercase version of the model name:
 
-```
+```python
 >>> p = Place.objects.get(id=12)
 # If p is a Restaurant object, this will give the child class:
 >>> p.restaurant
@@ -866,7 +872,7 @@ However, if `p` in the above example was *not* a `Restaurant` (it had been creat
 
 The automatically-created [`OneToOneField`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.OneToOneField "django.db.models.OneToOneField") on `Restaurant` that links it to `Place` looks like this:
 
-```
+```python
 place_ptr = models.OneToOneField(
     Place,
     on_delete=models.CASCADE,
@@ -885,10 +891,10 @@ So a child model does not have access to its parent’s [Meta](https://docs.djan
 
 If the parent has an ordering and you don’t want the child to have any natural ordering, you can explicitly disable it:
 
-```
-classChildModel(ParentModel):
+```python
+class ChildModel(ParentModel):
     # ...
-    classMeta:
+    class Meta:
         # Remove parent's ordering effect
         ordering = []
 ```
@@ -899,14 +905,14 @@ Because multi-table inheritance uses an implicit [`OneToOneField`](https://docs.
 
 For example, using the above `Place` class again, let’s create another subclass with a [`ManyToManyField`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.ManyToManyField "django.db.models.ManyToManyField"):
 
-```
-classSupplier(Place):
+```python
+class Supplier(Place):
     customers = models.ManyToManyField(Place)
 ```
 
 This results in the error:
 
-```
+```text
 Reverse query name for 'Supplier.customers' clashes with reverse query
 name for 'Supplier.place_ptr'.
 
@@ -930,27 +936,27 @@ Proxy models are declared like normal models. You tell Django that it’s a prox
 
 For example, suppose you want to add a method to the `Person` model. You can do it like this:
 
-```
-fromdjango.dbimport models
+```python
+from django.db import models
 
 
-classPerson(models.Model):
+class Person(models.Model):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
 
 
-classMyPerson(Person):
-    classMeta:
+class MyPerson(Person):
+    class Meta:
         proxy = True
 
-    defdo_something(self):
+    def do_something(self):
         # ...
         pass
 ```
 
 The `MyPerson` class operates on the same database table as its parent `Person` class. In particular, any new instances of `Person` will also be accessible through `MyPerson`, and vice-versa:
 
-```
+```python
 >>> p = Person.objects.create(first_name="foobar")
 >>> MyPerson.objects.get(first_name="foobar")
 <MyPerson: foobar>
@@ -958,9 +964,9 @@ The `MyPerson` class operates on the same database table as its parent `Person` 
 
 You could also use a proxy model to define a different default ordering on a model. You might not always want to order the `Person` model, but regularly order by the `last_name` attribute when you use the proxy:
 
-```
-classOrderedPerson(Person):
-    classMeta:
+```python
+class OrderedPerson(Person):
+    class Meta:
         ordering = ["last_name"]
         proxy = True
 ```
@@ -983,35 +989,36 @@ If you don’t specify any model managers on a proxy model, it inherits the mana
 
 Continuing our example from above, you could change the default manager used when you query the `Person` model like this:
 
-```
-fromdjango.dbimport models
+```python
+from django.db import models
 
 
-classNewManager(models.Manager):
+class NewManager(models.Manager):
     # ...
     pass
 
 
-classMyPerson(Person):
+class MyPerson(Person):
     objects = NewManager()
 
-    classMeta:
+    class Meta:
         proxy = True
 ```
 
 If you wanted to add a new manager to the Proxy, without replacing the existing default, you can use the techniques described in the [custom manager](https://docs.djangoproject.com/en/6.0/topics/db/managers/#custom-managers-and-inheritance) documentation: create a base class containing the new managers and inherit that after the primary base class:
 
-```
+```python
 # Create an abstract class for the new manager.
-classExtraManagers(models.Model):
+
+class ExtraManagers(models.Model):
     secondary = NewManager()
 
-    classMeta:
+    class Meta:
         abstract = True
 
 
-classMyPerson(Person, ExtraManagers):
-    classMeta:
+class MyPerson(Person, ExtraManagers):
+    class Meta:
         proxy = True
 ```
 
@@ -1038,41 +1045,41 @@ Generally, you won’t need to inherit from multiple parents. The main use-case 
 
 Note that inheriting from multiple models that have a common `id` primary key field will raise an error. To properly use multiple inheritance, you can use an explicit [`AutoField`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.AutoField "django.db.models.AutoField") in the base models:
 
-```
-classArticle(models.Model):
+```python
+class Article(models.Model):
     article_id = models.AutoField(primary_key=True)
     ...
 
 
-classBook(models.Model):
+class Book(models.Model):
     book_id = models.AutoField(primary_key=True)
     ...
 
 
-classBookReview(Book, Article):
+class BookReview(Book, Article):
     pass
 ```
 
 Or use a common ancestor to hold the [`AutoField`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.AutoField "django.db.models.AutoField"). This requires using an explicit [`OneToOneField`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.OneToOneField "django.db.models.OneToOneField") from each parent model to the common ancestor to avoid a clash between the fields that are automatically generated and inherited by the child:
 
-```
-classPiece(models.Model):
+```python
+class Piece(models.Model):
     pass
 
 
-classArticle(Piece):
+class Article(Piece):
     article_piece = models.OneToOneField(
         Piece, on_delete=models.CASCADE, parent_link=True
     )
     ...
 
 
-classBook(Piece):
+class Book(Piece):
     book_piece = models.OneToOneField(Piece, on_delete=models.CASCADE, parent_link=True)
     ...
 
 
-classBookReview(Book, Article):
+class BookReview(Book, Article):
     pass
 ```
 
@@ -1082,19 +1089,19 @@ In normal Python class inheritance, it is permissible for a child class to overr
 
 This restriction doesn’t apply to model fields inherited from an abstract model. Such fields may be overridden with another field or value, or be removed by setting `field_name = None`.
 
-Note
+> [!NOTE]
 
-Some fields define extra attributes on the model, e.g. a [`ForeignKey`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.ForeignKey "django.db.models.ForeignKey") defines an extra attribute with `_id` appended to the field name, as well as `related_name` and `related_query_name` on the foreign model.
+> Some fields define extra attributes on the model, e.g. a [`ForeignKey`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.ForeignKey "django.db.models.ForeignKey") defines an extra attribute with `_id` appended to the field name, as well as `related_name` and `related_query_name` on the foreign model.
 
-These extra attributes cannot be overridden unless the field that defines it is changed or removed so that it no longer defines the extra attribute.
+> These extra attributes cannot be overridden unless the field that defines it is changed or removed so that it no longer defines the extra attribute.
 
-Overriding fields in a parent model leads to difficulties in areas such as initializing new instances (specifying which field is being initialized in `Model.__init__`) and serialization. These are features which normal Python class inheritance doesn’t have to deal with in quite the same way, so the difference between Django model inheritance and Python class inheritance isn’t arbitrary.
+> Overriding fields in a parent model leads to difficulties in areas such as initializing new instances (specifying which field is being initialized in `Model.__init__`) and serialization. These are features which normal Python class inheritance doesn’t have to deal with in quite the same way, so the difference between Django model inheritance and Python class inheritance isn’t arbitrary.
 
-This restriction only applies to attributes which are [`Field`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field "django.db.models.Field") instances. Normal Python attributes can be overridden if you wish. It also only applies to the name of the attribute as Python sees it: if you are manually specifying the database column name, you can have the same column name appearing in both a child and an ancestor model for multi-table inheritance (they are columns in two different database tables).
+> This restriction only applies to attributes which are [`Field`](https://docs.djangoproject.com/en/6.0/ref/models/fields/#django.db.models.Field "django.db.models.Field") instances. Normal Python attributes can be overridden if you wish. It also only applies to the name of the attribute as Python sees it: if you are manually specifying the database column name, you can have the same column name appearing in both a child and an ancestor model for multi-table inheritance (they are columns in two different database tables).
 
-Django will raise a [`FieldError`](https://docs.djangoproject.com/en/6.0/ref/exceptions/#django.core.exceptions.FieldError "django.core.exceptions.FieldError") if you override any model field in any ancestor model.
+> Django will raise a [`FieldError`](https://docs.djangoproject.com/en/6.0/ref/exceptions/#django.core.exceptions.FieldError "django.core.exceptions.FieldError") if you override any model field in any ancestor model.
 
-Note that because of the way fields are resolved during class definition, model fields inherited from multiple abstract parent models are resolved in a strict depth-first order. This contrasts with standard Python MRO, which is resolved breadth-first in cases of diamond shaped inheritance. This difference only affects complex model hierarchies, which (as per the advice above) you should try to avoid.
+> Note that because of the way fields are resolved during class definition, model fields inherited from multiple abstract parent models are resolved in a strict depth-first order. This contrasts with standard Python MRO, which is resolved breadth-first in cases of diamond shaped inheritance. This difference only affects complex model hierarchies, which (as per the advice above) you should try to avoid.
 
 ## Organizing models in a package[¶](https://docs.djangoproject.com/en/6.0/topics/db/models/#organizing-models-in-a-package "Link to this heading")
 
@@ -1104,11 +1111,11 @@ To do so, create a `models` package. Remove `models.py` and create a `myapp/mode
 
 For example, if you had `organic.py` and `synthetic.py` in the `models` directory:
 
-`<span tts-paragraph-index="2371"><span class="tts-paragraph-player"><span class="tts-circle"><span class="tts-paragraph-player-button tts-play-icon" title="Lecture/Pause">myapp/models/__init__.py`[¶](https://docs.djangoproject.com/en/6.0/topics/db/models/#id11 "Link to this code")
+`myapp/models/__init__.py`[¶](https://docs.djangoproject.com/en/6.0/topics/db/models/#id11 "Link to this code")
 
-```
-from.organicimport Person
-from.syntheticimport Robot
+```python
+from .organic import Person
+from .synthetic import Robot
 ```
 
 Explicitly importing each model rather than using `from .models import *` has the advantages of not cluttering the namespace, making code more readable, and keeping code analysis tools useful.

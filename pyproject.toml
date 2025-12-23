@@ -1,7 +1,7 @@
 [project]
 name = "django-mcp"
 version = "0.1.0"
-description = "Add your description here"
+description = "An MCP server implementation for applications that use Django."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -16,9 +16,19 @@ dependencies = [
 authors = [
     { name = "John Pendenque", email = "pendenquejohn@gmail.com"}
 ]
+maintainers = [
+    { name = "John Pendenque", email = "pendenquejohn@gmail.com"}
+]
 license = { text = "MIT" }
 classifiers = [
     "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+    "Framework :: Django",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+    "Typing :: Typed",
+    "Development Status :: 3 - Alpha",
 ]
