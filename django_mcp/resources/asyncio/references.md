@@ -40,6 +40,8 @@ If the Task has been  *cancelled* , this method raises a [`CancelledError`](exce
 
 If the Task’s result isn’t yet available, this method raises an [`InvalidStateError`](https://docs.python.org/3/library/asyncio-exceptions.html#asyncio.InvalidStateError "asyncio.InvalidStateError") exception.
 
+---
+
 `exception()`
 
 Return the exception of the Task.
@@ -58,7 +60,9 @@ This method should only be used in low-level callback-based code.
 
 See the documentation of [`Future.add_done_callback()`](https://docs.python.org/3/library/asyncio-future.html#asyncio.Future.add_done_callback "asyncio.Future.add_done_callback") for more details.
 
-`remove_done_callback( *callback* )` - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.Task.remove_done_callback)
+---
+
+`remove_done_callback( *callback* )`
 
 Remove *callback* from the callbacks list.
 
@@ -66,7 +70,9 @@ This method should only be used in low-level callback-based code.
 
 See the documentation of [`Future.remove_done_callback()`](https://docs.python.org/3/library/asyncio-future.html#asyncio.Future.remove_done_callback "asyncio.Future.remove_done_callback") for more details.
 
-`get_stack( *** ,  *limit=None* )` - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.Task.get_stack)
+---
+
+`get_stack( *** ,  *limit=None* )`
 
 Return the list of stack frames for this Task.
 
@@ -78,7 +84,9 @@ Only one stack frame is returned for a suspended coroutine.
 
 The optional *limit* argument sets the maximum number of frames to return; by default all available frames are returned. The ordering of the returned list differs depending on whether a stack or a traceback is returned: the newest frames of a stack are returned, but the oldest frames of a traceback are returned. (This matches the behavior of the traceback module.)
 
-`print_stack( *** ,  *limit=None* ,  *file=None* )` - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.Task.print_stack)
+---
+
+`print_stack( *** ,  *limit=None* ,  *file=None* )`
 
 Print the stack or traceback for this Task.
 
@@ -95,17 +103,21 @@ Return the coroutine object wrapped by the [`Task`](https://docs.python.org/3/li
 > [!NOTE]
 > This will return `None` for Tasks which have already completed eagerly. See the [Eager Task Factory](https://docs.python.org/3/library/asyncio-task.html#eager-task-factory).
 
+---
+
 `get_context()` - [Reference](https://docs.python.org/3/library/asyncio-task.html#asyncio.Task.get_context)
 
 Return the [`contextvars.Context`](https://docs.python.org/3/library/contextvars.html#contextvars.Context) object associated with the task.
 
-Added in version 3.12.
+---
 
 `get_name()`
 
 Return the name of the Task.
 
 If no name has been explicitly assigned to the Task, the default asyncio Task implementation generates a default name during instantiation.
+
+---
 
 `set_name( *value* )`
 
@@ -115,7 +127,7 @@ The *value* argument can be any object, which is then converted to a string.
 
 In the default Task implementation, the name will be visible in the [`repr()`](https://docs.python.org/3/library/functions.html#repr "repr") output of a task object.
 
-Added in version 3.8.
+---
 
 `cancel( *msg=None* )`
 
@@ -127,13 +139,9 @@ The method arranges for a [`CancelledError`](exceptions.md#CancelledError) excep
 
 The coroutine then has a chance to clean up or even deny the request by suppressing the exception with a [`try`](https://docs.python.org/3/reference/compound_stmts.html#try) … … `except CancelledError` … [`finally`](https://docs.python.org/3/reference/compound_stmts.html#finally) block. Therefore, unlike [`Future.cancel()`](https://docs.python.org/3/library/asyncio-future.html#asyncio.Future.cancel "asyncio.Future.cancel"), [`Task.cancel()`](https://docs.python.org/3/library/asyncio-task.html#asyncio.Task.cancel) does not guarantee that the Task will be cancelled, although suppressing cancellation completely is not common and is actively discouraged. Should the coroutine nevertheless decide to suppress the cancellation, it needs to call [`Task.uncancel()`](https://docs.python.org/3/library/asyncio-task.html#asyncio.Task.uncancel) in addition to catching the exception.
 
-Changed in version 3.9: Added the *msg* parameter.
-
-Changed in version 3.11: The `msg` parameter is propagated from cancelled task to its awaiter.
-
 The following example illustrates how coroutines can intercept the cancellation request:
 
-```
+```python
 
 async defcancel_me():
 
@@ -197,11 +205,15 @@ asyncio.run(main())
 
 ```
 
+---
+
 `cancelled()`
 
 Return `True` if the Task is  *cancelled* .
 
 The Task is *cancelled* when the cancellation was requested with [`cancel()`](https://docs.python.org/3/library/asyncio-task.html#asyncio.Task.cancel) and the wrapped coroutine propagated the [`CancelledError`](exceptions.md#CancelledError) exception thrown into it.
+
+---
 
 `uncancel()`
 
@@ -215,7 +227,7 @@ Added in version 3.11.
 
 This method is used by asyncio’s internals and isn’t expected to be used by end-user code. In particular, if a Task gets successfully uncancelled, this allows for elements of structured concurrency like [Task Groups](https://docs.python.org/3/library/asyncio-task.html#taskgroups) and `asyncio.timeout()` to continue running, isolating cancellation to the respective structured block. For example:
 
-```
+```python
 
 async defmake_request_with_timeout():
 
@@ -246,6 +258,8 @@ If end-user code is, for some reason, suppressing cancellation by catching [`Can
 When this method decrements the cancellation count to zero, the method checks if a previous [`cancel()`](https://docs.python.org/3/library/asyncio-task.html#asyncio.Task.cancel) call had arranged for [`CancelledError`](exceptions.md#CancelledError) to be thrown into the task. If it hasn’t been thrown yet, that arrangement will be rescinded (by resetting the internal `_must_cancel` flag).
 
 Changed in version 3.13: Changed to rescind pending cancellation requests upon reaching zero.
+
+---
 
 `cancelling()`
 
