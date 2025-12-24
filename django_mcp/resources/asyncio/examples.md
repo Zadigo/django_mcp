@@ -1,3 +1,10 @@
+## Examples
+
+### Cleaning HTML Content from Database Entries
+
+The following example demonstrates how to clean HTML content stored in a SQLite database using BeautifulSoup. The script fetches entries from the database, removes HTML tags, and updates the cleaned text back into the database.
+
+```python
 import asyncio
 import pathlib
 import sqlite3
@@ -149,3 +156,4 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
+```
